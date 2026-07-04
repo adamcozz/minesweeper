@@ -14,164 +14,54 @@ class Board:
 
         #Populate array with mines in random positions
         count = 0
-        while count < self.mines: 
+        while count < self.mines:   
             randnum_one = randint(0, self.width - 1)
             randnum_two = randint(0, self.height - 1)
             if matrix[randnum_two][randnum_one] != "B":
                 matrix[randnum_two][randnum_one] = "B"
                 count += 1
         
-        #Populate array with numbers which correspond to the number of mines adjacent to item in array
-        for i in range(0, len(matrix)):
-            #0th row conditions
-            if i == 0:
-                 for j in range(0, len(matrix[i])):
-                    counter = 0
-                    #Firts item in row conditons
-                    if j == 0:
-                        if matrix[i][j] == "B":
-                            continue
-                        if matrix[i][j + 1] == "B":
-                            counter += 1
-                        if matrix[i + 1][j] == "B":
-                            counter += 1
-                        if matrix[i + 1][j + 1] == "B":
-                            counter += 1
-                        matrix[i][j] = counter
-                    #Last item in row conditions
-                    elif j == len(matrix[i]) - 1:
-                        if matrix[i][j] == "B":
-                            continue
-                        if matrix[i][j - 1] == "B":
-                            counter += 1
-                        if matrix[i + 1][j] == "B":
-                            counter += 1
-                        if matrix[i + 1][j - 1] == "B":
-                            counter += 1
-                        matrix[i][j] = counter
-                    #Middle item in row conditions
-                    else:
-                        if matrix[i][j] == "B":
-                            continue
-                        if matrix[i][j - 1] == "B":
-                            counter += 1
-                        if matrix[i][j + 1] == "B":
-                            counter += 1
-                        if matrix[i + 1][j] == "B":
-                            counter += 1
-                        if matrix[i + 1][j - 1] == "B":
-                            counter += 1
-                        if matrix[i + 1][j + 1] == "B":
-                            counter += 1
-                        matrix[i][j] = counter
-            #Final row conditions
-            elif i == len(matrix) - 1:
-                 for j in range(0, len(matrix[i])):
-                    counter = 0
-                    #Firts item in row conditons
-                    if j == 0:
-                        if matrix[i][j] == "B":
-                            continue
-                        if matrix[i][j + 1] == "B":
-                            counter += 1
-                        if matrix[i - 1][j] == "B":
-                            counter += 1
-                        if matrix[i - 1][j + 1] == "B":
-                            counter += 1
-                        matrix[i][j] = counter
-                    #Last item in row conditions
-                    elif j == len(matrix[i]) - 1:
-                        if matrix[i][j] == "B":
-                            continue
-                        if matrix[i][j - 1] == "B":
-                            counter += 1
-                        if matrix[i - 1][j] == "B":
-                            counter += 1
-                        if matrix[i - 1][j - 1] == "B":
-                            counter += 1
-                        matrix[i][j] = counter
-                    #Middle item in row conditions
-                    else:
-                        if matrix[i][j] == "B":
-                            continue
-                        if matrix[i][j - 1] == "B":
-                            counter += 1
-                        if matrix[i][j + 1] == "B":
-                            counter += 1
-                        if matrix[i - 1][j] == "B":
-                            counter += 1
-                        if matrix[i - 1][j - 1] == "B":
-                            counter += 1
-                        if matrix[i - 1][j + 1] == "B":
-                            counter += 1
-                        matrix[i][j] = counter
-            #Middle rows conditions
-            else:
-                for j in range(0, len(matrix[i])):
-                    counter = 0
-                    #Firts item in row conditons
-                    if j == 0:
-                        if matrix[i][j] == "B":
-                            continue
-                        if matrix[i][j + 1] == "B":
-                            counter += 1
-                        if matrix[i - 1][j] == "B":
-                            counter += 1
-                        if matrix[i - 1][j + 1] == "B":
-                            counter += 1
-                        if matrix[i + 1][j] == "B":
-                            counter += 1
-                        if matrix[i + 1][j + 1] == "B":
-                            counter += 1
-                        matrix[i][j] = counter
-                    #Last item in row conditions
-                    elif j == len(matrix[i]) - 1:
-                        if matrix[i][j] == "B":
-                            continue
-                        if matrix[i][j - 1] == "B":
-                            counter += 1
-                        if matrix[i - 1][j] == "B":
-                            counter += 1
-                        if matrix[i - 1][j - 1] == "B":
-                            counter += 1
-                        if matrix[i + 1][j] == "B":
-                            counter += 1
-                        if matrix[i + 1][j - 1] == "B":
-                            counter += 1
-                        matrix[i][j] = counter
-                    #Middle item in row conditions
-                    else:
-                        if matrix[i][j] == "B":
-                            continue
-                        if matrix[i][j - 1] == "B":
-                            counter += 1
-                        if matrix[i][j + 1] == "B":
-                            counter += 1
-                        if matrix[i - 1][j] == "B":
-                            counter += 1
-                        if matrix[i - 1][j - 1] == "B":
-                            counter += 1
-                        if matrix[i - 1][j + 1] == "B":
-                            counter += 1
-                        if matrix[i + 1][j] == "B":
-                            counter += 1
-                        if matrix[i + 1][j - 1] == "B":
-                            counter += 1
-                        if matrix[i + 1][j + 1] == "B":
-                            counter += 1
-                        matrix[i][j] = counter
-        for row in matrix:
-            print(''.join(map(str, row)))
-
+        #Populate array with numbers which correspond to number of adjacent mines
+        conditions = [(-1, -1), (-1, 0), (-1, 1),(0, -1), (0, 1),(1, -1),  (1, 0), (1, 1)] 
+        for i in range(0, self.height):
+            for j in range(0, self.width):
+                if matrix[i][j] == "B":
+                    continue
+                counter = 0
+                for dy, dx in conditions:
+                    ny = i + dy
+                    nx = j + dx
+                    if 0 <= ny < self.height and 0 <= nx < self.width:
+                        if matrix[ny][nx] == "B":
+                             counter += 1
+                matrix[i][j] = counter
+        
+        return matrix
     
+    #Function to display game baord
     def display_board(self):
+        
+        #Generate width x height array of ░
         matrix = [["░" for i in range(0, self.width)] for i in range(0, self.height)]
-        for row in matrix:
-            print(''.join(map(str, row)))
+        
+        #Display random item from hidden game board
+        while True:
+            randnum_one = randint(0, self.width - 1)
+            randnum_two = randint(0, self.height - 1)
+            hidden_item = self.hidden_board()[randnum_two][randnum_one]
+            if hidden_item != "B":
+                matrix[randnum_two][randnum_one] = hidden_item
+                break
 
-
+        #Create a multi line string to return
+        board_string = '\n'.join(''.join(map(str,row))for row in matrix)
+        
+        return board_string
+        
+class Game:
+    def __init__(self):
+        return
+    
 board_one = Board()
 
-board_one.display_board()
-
-board_one.hidden_board()
+print(board_one.display_board())
