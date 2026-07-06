@@ -6,62 +6,95 @@ class Board:
         self.height = height
         self.mines = mines
     
-    #Function to generate hidden game board
     def hidden_board(self):
-        
-        #Generate width x height array of 0s
-        matrix = [["0" for i in range(0, self.width)] for i in range(0, self.height)]
-
-        #Populate array with mines in random positions
+        matrix = [["0" for i in range(self.width)] for i in range(self.height)]
         count = 0
-        while count < self.mines:   
-            randnum_one = randint(0, self.width - 1)
-            randnum_two = randint(0, self.height - 1)
-            if matrix[randnum_two][randnum_one] != "B":
-                matrix[randnum_two][randnum_one] = "B"
+        while count < self.mines:
+            x = randint(0, self.width - 1)
+            y = randint(0, self.height - 1)
+            if matrix[y][x] != "B":
+                matrix[y][x] = "B"
                 count += 1
         
-        #Populate array with numbers which correspond to number of adjacent mines
-        conditions = [(-1, -1), (-1, 0), (-1, 1),(0, -1), (0, 1),(1, -1),  (1, 0), (1, 1)] 
-        for i in range(0, self.height):
-            for j in range(0, self.width):
-                if matrix[i][j] == "B":
+        conditions = [(-1,-1),(-1,0),(-1,1),(0,-1),(0,1),(1,-1),(1,0),(1,1)]
+        for y in range(self.height):
+            for x in range(self.width):
+                if matrix[y][x] == "B":
                     continue
                 counter = 0
                 for dy, dx in conditions:
-                    ny = i + dy
-                    nx = j + dx
+                    ny, nx = y + dy, x + dx
                     if 0 <= ny < self.height and 0 <= nx < self.width:
                         if matrix[ny][nx] == "B":
-                             counter += 1
-                matrix[i][j] = counter
-        
+                            counter += 1
+                matrix[y][x] = counter
         return matrix
     
-    #Function to display game baord
-    def display_board(self):
-        
-        #Generate width x height array of ░
-        matrix = [["░" for i in range(0, self.width)] for i in range(0, self.height)]
-        
-        #Display random item from hidden game board
+    def display_board(self, hidden_matrix):
+        matrix = [["░" for _ in range(self.width)] for _ in range(self.height)]
         while True:
-            randnum_one = randint(0, self.width - 1)
-            randnum_two = randint(0, self.height - 1)
-            hidden_item = self.hidden_board()[randnum_two][randnum_one]
-            if hidden_item != "B":
-                matrix[randnum_two][randnum_one] = hidden_item
+            x = randint(0, self.width - 1)
+            y = randint(0, self.height - 1)
+            if hidden_matrix[y][x] != "B":
+                matrix[y][x] = hidden_matrix[y][x]
                 break
+        return matrix
 
-        #Create a multi line string to return
-        board_string = '\n'.join(''.join(map(str,row))for row in matrix)
-        
-        return board_string
-        
 class Game:
     def __init__(self):
-        return
+        self.game_over = False
+        self.game_board = Board()
+        self.hidden_matrix = self.game_board.hidden_board()
+        self.display_matrix = self.game_board.display_board(self.hidden_matrix)
     
-board_one = Board()
+    def render_board(self):
+        alphabet = "abcdefghijklmnopqrstuvwxyz"
+        rows = []
+        for i in range(self.game_board.height):
+            row_label = alphabet[i]
+            row_string = row_label + ''.join(map(str, self.display_matrix[i]))
+            rows.append(row_string)
+        rows.insert(0, " " + alphabet[:self.game_board.width])
+        print("\n".join(rows))
+    
+    def move(self, coordinates=None):
+        alphabet = "abcdefghijklmnopqrstuvwxyz"
 
-print(board_one.display_board())
+        if coordinates is None:
+            coordinates = input("Enter coordinates (pick row, then column. e.g. 'dc'): ")
+
+        if len(coordinates) != 2:
+            print("Invalid input. Enter exactly two letters like 'dc'.")
+            return
+
+        row_letter = coordinates[0].lower()
+        col_letter = coordinates[1].lower()
+
+        if row_letter not in alphabet or col_letter not in alphabet:
+            print("Invalid input. Use letters only, e.g. 'dc'.")
+            return
+
+        y = alphabet.index(row_letter)
+        x = alphabet.index(col_letter)
+
+        self.display_matrix[y][x] = self.hidden_matrix[y][x]
+
+        self.render_board()
+
+    def loop(self):
+        self.render_board()
+        while not self.game_over:
+            self.move()
+            
+            flat = [cell for row in self.display_matrix for cell in row]
+
+            if "B" in flat:
+                print("Game over")
+                self.game_over = True
+            
+            if flat.count("░") == self.game_board.mines:
+                print("You win!")
+                self.game_over = True
+
+game = Game()
+game.loop()
